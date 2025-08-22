@@ -323,27 +323,59 @@ bot.on('messageCreate', (message) => {
             return message.reply('You do not have permission to use this command.');
         }
 
+        // Save reload information
+        const reloadData = {
+            requestedBy: message.author.id,
+            channelId: message.channel.id,
+            timestamp: Date.now()
+        };
+        jsonfile.writeFileSync('reload.json', reloadData);
+        
         message.reply('🔄 Restarting bot...').then(() => {
             // Graceful shutdown
             bot.destroy();
             process.exit(0);
         });
     }
-});
+}); // This closes the messageCreate event
 
-// Add this code right before your bot.login() line
+// ADD THE READY EVENT HANDLER HERE (outside messageCreate)
+let hasSentOnlineMessage = false;
 
-bot.on('ready', () => {
+bot.once('ready', () => {
     console.log(`✅ ${bot.user.tag} is now online!`);
     bot.user.setActivity('With the Code', { type: Discord.ActivityType.Playing });
     
-    // Replace 'CHANNEL_ID' with the actual channel ID where you want the message sent
-    const channel = bot.channels.cache.get('1407070178755215582');
+    // Check if we just reloaded
+    if (fs.existsSync('reload.json')) {
+        try {
+            const reloadData = jsonfile.readFileSync('reload.json');
+            
+            // Get the channel and user
+            const channel = bot.channels.cache.get(reloadData.channelId);
+            const user = bot.users.cache.get(reloadData.requestedBy);
+            
+            if (channel) {
+                const userName = user ? user.username : 'Someone';
+                channel.send(`✅ Bot has been successfully reloaded by ${userName}!`);
+            }
+            
+            // Clean up the reload file
+            fs.unlinkSync('reload.json');
+        } catch (error) {
+            console.error('Error handling reload message:', error);
+        }
+    }
     
-    if (channel) {
-        channel.send('✅ Bot is now online and ready!');
-    } else {
-        console.log('Channel not found. Make sure the channel ID is correct.');
+    if (!hasSentOnlineMessage) {
+        const channel = bot.channels.cache.get('1407070178755215582');
+        
+        if (channel) {
+            channel.send('✅ Bot is now online and ready!');
+            hasSentOnlineMessage = true;
+        } else {
+            console.log('Channel not found. Make sure the channel ID is correct.');
+        }
     }
 });
 
