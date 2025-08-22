@@ -337,7 +337,7 @@ bot.on('ready', () => {
     console.log(`✅ ${bot.user.tag} is now online!`);
     
     // You can also set the bot's status/activity
-    bot.user.setActivity('with XP system', { type: Discord.ActivityType.Playing });
+    bot.user.setActivity('with the code', { type: Discord.ActivityType.Playing });
 });
 
 bot.login(process.env.DISCORD_TOKEN);
