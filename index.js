@@ -335,9 +335,16 @@ bot.on('messageCreate', (message) => {
 
 bot.on('ready', () => {
     console.log(`✅ ${bot.user.tag} is now online!`);
+    bot.user.setActivity('With the Code', { type: Discord.ActivityType.Playing });
     
-    // You can also set the bot's status/activity
-    bot.user.setActivity('with the code', { type: Discord.ActivityType.Playing });
+    // Replace 'CHANNEL_ID' with the actual channel ID where you want the message sent
+    const channel = bot.channels.cache.get('1407070178755215582');
+    
+    if (channel) {
+        channel.send('✅ Bot is now online and ready!');
+    } else {
+        console.log('Channel not found. Make sure the channel ID is correct.');
+    }
 });
 
 bot.login(process.env.DISCORD_TOKEN);
