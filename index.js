@@ -313,6 +313,31 @@ bot.on('messageCreate', (message) => {
             message.channel.send({ embeds: [embed] });
         });
     }
+
+    if (parts[0] === '!reload') {
+        // Check if user has the required role
+        const allowedRoleIds = ['1407072581495820338', '1407072904109363294'];
+        const hasAllowedRole = message.member.roles.cache.some(role => allowedRoleIds.includes(role.id));
+        
+        if (!hasAllowedRole) {
+            return message.reply('You do not have permission to use this command.');
+        }
+
+        message.reply('🔄 Restarting bot...').then(() => {
+            // Graceful shutdown
+            bot.destroy();
+            process.exit(0);
+        });
+    }
+});
+
+// Add this code right before your bot.login() line
+
+bot.on('ready', () => {
+    console.log(`✅ ${bot.user.tag} is now online!`);
+    
+    // You can also set the bot's status/activity
+    bot.user.setActivity('with XP system', { type: Discord.ActivityType.Playing });
 });
 
 bot.login(process.env.DISCORD_TOKEN);
